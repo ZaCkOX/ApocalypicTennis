@@ -8,5 +8,6 @@ public class PublicScript : MonoBehaviour {
     public static ControllerEvents gudcControllerEvents;
     public static GameObject[] gaobjControllers = new GameObject[2];
     public static bool gblnControllersReady = false;
+    public static bool BallInHand = true;
 
 }
