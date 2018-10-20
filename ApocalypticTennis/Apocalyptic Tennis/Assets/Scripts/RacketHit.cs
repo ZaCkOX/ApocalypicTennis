@@ -4,50 +4,50 @@ using UnityEngine;
 
 public class RacketHit : MonoBehaviour {
 
-    //Declare privates
+    //Declare publics
     public Tracking RacketTracking;
-    public float BallForceApplied = 500f;
+    public Rigidbody TheBallRigidbody;
+    public Rigidbody TheRacketRigidbody;
+
+    //Declare privates
+    private Tracking BallTracking;
+
+    private void Start() {
+        //Set
+        BallTracking = TheBallRigidbody.GetComponent<Tracking>();
+    }
 
     private void OnTriggerEnter(Collider other) {
         //Check name
+        if (other.name == "Ball (1)") {
+            PublicScript.gtxtDebug.text += " HIT2";
+        }
+        //Check name
         if (other.name == "Ball") {
-            //Change
-            PublicScript.BallInHand = false;
             //Remove parent
             other.transform.parent = null;
             //Fix scale
             other.transform.localScale = Vector3.one;
-            //Change to collider
-            other.GetComponent<SphereCollider>().isTrigger = false;
-            //Change this to collider
-            GetComponent<MeshCollider>().isTrigger = false;
-            //Declare
-            Rigidbody TheBallRigidbody = other.GetComponent<Rigidbody>();
             //Allow physics
-            TheBallRigidbody.isKinematic = false;
+            // TheBallRigidbody.isKinematic = false;
             //Declare
-            Tracking BallTracking = other.gameObject.GetComponent<Tracking>();
+            Vector3 resultVelocity = GetResultantVelocity(RacketTracking.GetDirectionVector() * RacketTracking.GetVelocity(), TheRacketRigidbody.mass, 
+                BallTracking.GetDirectionVector() * BallTracking.GetVelocity(), TheBallRigidbody.mass);
+
+            Vector3 ballForce = (resultVelocity * TheBallRigidbody.mass) / Time.deltaTime;
+
+            PublicScript.gtxtDebug.text = "Ball Force = " + ballForce.ToString();
+
             //Apply force
-            TheBallRigidbody.AddForce((RacketTracking.GetDirectionVector() * BallForceApplied) + (BallTracking.GetDirectionVector() * BallForceApplied));
+            TheBallRigidbody.AddForce(ballForce);
+            PublicScript.gtxtDebug.text += " HIT1";
         }
     }
 
-    private void OnCollisionEnter(Collision collision) {
-        //Check name
-        if (collision.gameObject.name == "Ball") {
-            //Change
-            PublicScript.BallInHand = false;
-            //Remove parent
-            collision.gameObject.transform.parent = null;
-            //Fix scale
-            collision.gameObject.transform.localScale = Vector3.one;
-            //Declare
-            Rigidbody TheBallRigidbody = collision.gameObject.GetComponent<Rigidbody>();
-            //Allow physics
-            TheBallRigidbody.isKinematic = false;
-            //Apply force
-            TheBallRigidbody.AddForce(collision.gameObject.GetComponent<Tracking>().GetDirectionVector() * 500f);
-        }
+    private Vector3 GetResultantVelocity(Vector3 v1, float m1, Vector3 v2, float m2) {
+        Vector3 result = ((2f * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
+
+        return result;
     }
 
 }

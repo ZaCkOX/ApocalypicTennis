@@ -1,0 +1,40 @@
+    private void OnTriggerEnter(Collider other) {
+        //Check name
+        if (other.name == "Ball") {
+            //Change
+            PublicScript.BallInHand = false;
+            //Remove parent
+            other.transform.parent = null;
+            //Fix scale
+            other.transform.localScale = Vector3.one;
+            //Change to collider
+            other.GetComponent<SphereCollider>().isTrigger = false;
+            //Change this to collider
+            GetComponent<MeshCollider>().isTrigger = false;
+            //Allow physics
+            TheBallRigidbody.isKinematic = false;
+            //Declare
+            Vector3 RacketForce = RacketTracking.GetDirectionVector() * TheRacketRigidbody.mass * RacketTracking.GetAcceleration();
+            Vector3 BallForce = BallTracking.GetDirectionVector() * TheBallRigidbody.mass * BallTracking.GetAcceleration();
+            //Apply force
+            TheBallRigidbody.AddForce(RacketForce + BallForce);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        //Check name
+        if (collision.gameObject.name == "Ball") {
+            //Change
+            PublicScript.BallInHand = false;
+            //Remove parent
+            collision.gameObject.transform.parent = null;
+            //Fix scale
+            collision.gameObject.transform.localScale = Vector3.one;
+            //Declare
+            Rigidbody TheBallRigidbody = collision.gameObject.GetComponent<Rigidbody>();
+            //Allow physics
+            TheBallRigidbody.isKinematic = false;
+            //Apply force
+            TheBallRigidbody.AddForce(collision.gameObject.GetComponent<Tracking>().GetDirectionVector() * 500f);
+        }
+    }

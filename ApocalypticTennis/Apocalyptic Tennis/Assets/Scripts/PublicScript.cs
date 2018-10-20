@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PublicScript : MonoBehaviour {
 
@@ -8,6 +9,6 @@ public class PublicScript : MonoBehaviour {
     public static ControllerEvents gudcControllerEvents;
     public static GameObject[] gaobjControllers = new GameObject[2];
     public static bool gblnControllersReady = false;
-    public static bool BallInHand = true;
+    public static TextMeshPro gtxtDebug;
 
 }
