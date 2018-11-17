@@ -72,7 +72,7 @@ public class TrackingComponent: MonoBehaviour
     }
 
     public Vector3 GetMomentum() {
-        return GetVelocity() * Rbody.mass;
+        return GetVelocity() * 0.09f; //Rigidbody was on racket gameobject, Rbody.mass; //Deleted rigid body for testing, used mass 0.09, ang 0, ang drag 0, no gravity, no kinematic, inter none, collision continuous dynamic
     }
 
     public Vector3 GetAvgMomentum() {
