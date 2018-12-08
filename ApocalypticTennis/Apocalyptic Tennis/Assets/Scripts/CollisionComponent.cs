@@ -8,14 +8,21 @@ public class CollisionComponent: MonoBehaviour
     public Rigidbody TrackingRigidbody;
     public float AcceptanceCollisionRadius = 12f;
     public float DampeningRatio = 1.0f;
+    public float TrackingForceMultipler = 1f;
+    public float TimeBetweenHits = 1f;
+    public float MinForceMag = 100f;
+    private float TimeBetweenHitsSubtract = 0f;
     private bool inFront = false;
     private bool inRange = false;
+    private bool canHitBall = true;
 
     private TrackingComponent BaseTrackingComponent;
+    private Transform TrackingTransform;
 
     // Use this for initialization
     void Start() {
         BaseTrackingComponent = GetComponent<TrackingComponent>();
+        TrackingTransform = BaseTrackingComponent.transform;
         CheckForHit();
     }
 
@@ -47,11 +54,19 @@ public class CollisionComponent: MonoBehaviour
         // Is the ball is within range of an acceptable hit
         bool nowInRange = distSquared <= (AcceptanceCollisionRadius * AcceptanceCollisionRadius);
 
+        if (PublicScript.UseTimer(ref TimeBetweenHitsSubtract, TimeBetweenHits)) {
+            canHitBall = true;
+        }
+
 
         // A hit has been detected!
         if (inRange && inFront != nowInFront) {
-            Debug.Log("A hit was made");
-            HandleCollisionLogic();
+
+            Debug.Log(TimeBetweenHitsSubtract);
+            if (canHitBall) {
+                HandleCollisionLogic();
+                canHitBall = false;
+            }
         }
 
         // Set the current values as the previous ones for the next hit detection
@@ -61,16 +76,26 @@ public class CollisionComponent: MonoBehaviour
 
     private void HandleCollisionLogic() {
 
-        TrackingComponent CollidingObject = TrackingRigidbody.transform.GetComponent<TrackingComponent>();
-        if(CollidingObject)
-        {
-            float collidingForce = CollidingObject.GetMomentum() / Time.deltaTime;
-            float colliderForce = BaseTrackingComponent.GetMomentum() / Time.deltaTime;
-            Vector3 reflectedCollidingForce = collidingForce - 2((Math::dot(collidingForce, racketNormal)) * racketNormal);
-            float finalForce = (reflectedCollidingForce * DampeningRatio) + colliderForce;
+        Debug.Log("A hit was made");
 
-            TrackingRigidbody.AddForce(finalForce * Time.timeScale);
+        TrackingComponent CollidingObject = TrackingRigidbody.transform.GetComponent<TrackingComponent>();
+
+        Vector3 collidingForce = CollidingObject.GetMomentum() / Time.deltaTime;
+        Vector3 colliderForce = BaseTrackingComponent.GetMomentum() / Time.deltaTime;
+        Vector3 reflectedCollidingForce = -(Vector3.Dot(collidingForce, TrackingTransform.forward) * TrackingTransform.forward);
+        Vector3 finalForce = (reflectedCollidingForce * DampeningRatio) + (colliderForce * TrackingForceMultipler);
+
+        float mag = Vector3.Magnitude(finalForce);
+
+        if(mag < MinForceMag) {
+            finalForce.Normalize();
+            finalForce *= MinForceMag;
         }
+
+        TrackingRigidbody.AddForce(finalForce);
+
+        TimeBetweenHitsSubtract = TimeBetweenHits;
+
 
     }
 

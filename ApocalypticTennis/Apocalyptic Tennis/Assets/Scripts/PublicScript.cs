@@ -11,4 +11,18 @@ public class PublicScript : MonoBehaviour {
     public static bool gblnControllersReady = false;
     public static TextMeshPro gtxtDebug;
 
+    public static bool UseTimer(ref float TimeOfTimer, float TimeReset = 0f) {
+        if (TimeOfTimer > 0f) {
+            TimeOfTimer -= Time.deltaTime;
+        }
+        if (TimeOfTimer <= 0f) {
+            if (TimeReset != 0f) {
+                TimeOfTimer = TimeReset;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
