@@ -7,6 +7,7 @@ public class CollisionComponent: MonoBehaviour
     public Transform trackingObject;
     public Rigidbody TrackingRigidbody;
     public float AcceptanceCollisionRadius = 12f;
+    public float DampeningRatio = 1.0f;
     private bool inFront = false;
     private bool inRange = false;
 
@@ -60,8 +61,16 @@ public class CollisionComponent: MonoBehaviour
 
     private void HandleCollisionLogic() {
 
-        Debug.Log(Time.timeScale);
-        TrackingRigidbody.AddForce((BaseTrackingComponent.GetMomentum() / Time.deltaTime) * Time.timeScale);
+        TrackingComponent CollidingObject = TrackingRigidbody.transform.GetComponent<TrackingComponent>();
+        if(CollidingObject)
+        {
+            float collidingForce = CollidingObject.GetMomentum() / Time.deltaTime;
+            float colliderForce = BaseTrackingComponent.GetMomentum() / Time.deltaTime;
+            Vector3 reflectedCollidingForce = collidingForce - 2((Math::dot(collidingForce, racketNormal)) * racketNormal);
+            float finalForce = (reflectedCollidingForce * DampeningRatio) + colliderForce;
+
+            TrackingRigidbody.AddForce(finalForce * Time.timeScale);
+        }
 
     }
 
