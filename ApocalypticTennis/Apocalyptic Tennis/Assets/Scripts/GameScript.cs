@@ -15,6 +15,7 @@ public class GameScript : MonoBehaviour {
     [Range(0.01f, 0.99f)]
     public float SlowMotionSpeed = 0.25f;
     public TextMeshPro VRDebug;
+    public Vector3 BallOffset = Vector3.zero;
 
     //Declare privates
     private TrackingComponent BallTracking;
@@ -64,6 +65,9 @@ public class GameScript : MonoBehaviour {
 
                 //Bring to hand
                 TheBallRigidbody.position = PublicScript.gaobjControllers[0].transform.position;
+
+                //Set rotation
+                TheBallRigidbody.rotation = PublicScript.gaobjControllers[0].transform.rotation * Quaternion.Euler(BallOffset);
 
                 //float Distance = Vector3.Distance(TheBallRigidbody.position, PublicScript.gaobjControllers[0].transform.position);
                 //if(Distance < 0.01f) {
